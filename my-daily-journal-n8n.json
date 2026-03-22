@@ -1,0 +1,172 @@
+{
+  "name": "My Daily Journal",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "da2b056b-c728-41af-8824-50af1acfccda",
+      "name": "Daily 8am Journal Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "8330263195",
+        "text": "=\nGood morning! Here are your 4 for today — {{ $now.toFormat('dd.MM.yyyy') }}:\n\n1. What is one thing you are grateful for yesterday — or one thing you did well?\n2. What is your one goal for today — or one task you want to complete?\n3. What is something you noticed about yourself yesterday?\n4. Who were you kind to yesterday — or who was kind to you?\n\nReply with your 4 answers, one per line.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "3b3c1bbd-e7b2-4c67-a29d-d5f833a8d37d",
+      "name": "Send Morning Journal Questions",
+      "webhookId": "90cda3c7-8b9f-4d8e-9c1a-2c707ebc471f",
+      "credentials": {
+        "telegramApi": {
+          "id": "cMh09SgGg2hhYkna",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        0
+      ],
+      "id": "bf3ac969-8a43-42de-adb8-648f7b72b88f",
+      "name": "Listen for User Reply",
+      "webhookId": "3ed808be-753f-4589-95a9-0a08389b9faf",
+      "credentials": {
+        "telegramApi": {
+          "id": "cMh09SgGg2hhYkna",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "8330263195",
+        "text": "={{ $json.content[0].text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "6ba75165-210f-4a09-80ac-7b4392f6871c",
+      "name": "Send Reflection to User",
+      "webhookId": "ea139006-01f0-4c3e-ba1d-71254e1a0359",
+      "credentials": {
+        "telegramApi": {
+          "id": "cMh09SgGg2hhYkna",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=The user just answered their morning journal. Write a warm, personal 2-line response based on exactly what they wrote. Keep it short, human and genuine. No generic phrases.\n\nTheir answers:\n{{ $json.message.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        576,
+        0
+      ],
+      "id": "87c7c756-07c7-460e-b37d-8ad6609c6db2",
+      "name": "Generate Reflection",
+      "credentials": {
+        "anthropicApi": {
+          "id": "DZ1yMzDdATsqzSod",
+          "name": "Anthropic account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Daily 8am Journal Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send Morning Journal Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listen for User Reply": {
+      "main": [
+        [
+          {
+            "node": "Generate Reflection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Reflection": {
+      "main": [
+        [
+          {
+            "node": "Send Reflection to User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b008251e-2780-4393-9347-c74f02147838",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0c1192b088b5acd5189d589f32c5bedb60681f8ffa44edf5720ba7d272aa16dc"
+  },
+  "id": "TKtJ6aepXcUWi3Sx",
+  "tags": []
+}
